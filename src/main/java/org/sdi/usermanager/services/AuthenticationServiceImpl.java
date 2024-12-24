@@ -6,6 +6,7 @@ import org.sdi.usermanager.dtos.AuthenticationResponse;
 import org.sdi.usermanager.dtos.RegisterRequest;
 import org.sdi.usermanager.entities.Role;
 import org.sdi.usermanager.entities.User;
+import org.sdi.usermanager.exceptions.EmailAlreadyExistsException;
 import org.sdi.usermanager.repositories.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,7 +31,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public AuthenticationResponse register(RegisterRequest registerRequest) {
         userRepository.findByEmail(registerRequest.getEmail()).ifPresent(user -> {
-            throw new RuntimeException(String.format("User with email %s already exists", user.getEmail()));
+            throw new EmailAlreadyExistsException(String.format("User with email %s already exists", user.getEmail()));
         });
 
         User user = new User();
