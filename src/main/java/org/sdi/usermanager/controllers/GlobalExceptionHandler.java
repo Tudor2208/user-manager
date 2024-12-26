@@ -2,6 +2,7 @@ package org.sdi.usermanager.controllers;
 
 import org.sdi.usermanager.dtos.ErrorDto;
 import org.sdi.usermanager.exceptions.EmailAlreadyExistsException;
+import org.sdi.usermanager.exceptions.NotFoundException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,5 +34,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorDto> handleBadCredentialsException(BadCredentialsException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ErrorDto(String.valueOf(HttpStatus.UNAUTHORIZED), "Invalid username or password"));
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorDto> handleNotFoundException(Exception ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDto(String.valueOf(HttpStatus.NOT_FOUND), ex.getMessage()));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorDto> handleException(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorDto(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR), ex.getMessage()));
     }
 }
