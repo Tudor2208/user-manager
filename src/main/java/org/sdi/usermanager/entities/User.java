@@ -30,17 +30,20 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @ManyToMany
-    @JoinTable(
-            name = "friendships",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "friend_id")
-    )
-    private Set<User> friends = new HashSet<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Friendship> friendships = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    public Set<Friendship> getFriendships() {
+        return friendships;
+    }
+
+    public void setFriendships(Set<Friendship> friendships) {
+        this.friendships = friendships;
     }
 
     @Override
@@ -117,10 +120,6 @@ public class User implements UserDetails {
         this.role = role;
     }
 
-    public Set<User> getFriends() {
-        return friends;
-    }
-
     @Override
     public String toString() {
         return "User{" +
@@ -130,7 +129,6 @@ public class User implements UserDetails {
                 ", lastName='" + lastName + '\'' +
                 ", password='" + password + '\'' +
                 ", role=" + role +
-                ", friends=" + friends +
                 '}';
     }
 }
