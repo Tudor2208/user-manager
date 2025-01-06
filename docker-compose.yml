@@ -1,0 +1,64 @@
+services:
+  users-db:
+    image: mysql:latest
+    container_name: users-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword  
+      MYSQL_DATABASE: users-db        
+      MYSQL_USER: myuser                
+      MYSQL_PASSWORD: mypassword        
+    ports:
+      - "3307:3306"                     
+    volumes:
+      - users-data:/var/lib/mysql       
+    networks:
+      - app-network
+
+  chat-db:
+    image: mysql:latest
+    container_name: chat-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: chat-db        
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+    ports:
+      - "3308:3306"                     
+    volumes:
+      - chat-data:/var/lib/mysql       
+    networks:
+      - app-network    
+
+  zookeeper:
+    image: 'bitnami/zookeeper:latest'
+    container_name: zookeeper
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    ports:
+      - '2181:2181'
+    networks:
+      - app-network    
+
+  kafka:
+    image: 'bitnami/kafka:latest'
+    container_name: kafka
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092 
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    ports:
+      - '9092:9092'
+    depends_on:
+      - zookeeper
+    networks:
+      - app-network    
+
+volumes:
+  users-data:
+  chat-data:
+
+networks:
+  app-network:
+    driver: bridge    
